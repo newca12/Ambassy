@@ -1,22 +1,23 @@
-package spray.examples
+package org.edla.ambassy
 
 import java.security.{SecureRandom, KeyStore}
 import javax.net.ssl.{KeyManagerFactory, SSLContext, TrustManagerFactory}
 import spray.can.server.HttpServer
 import spray.io._
 import akka.actor._
+import org.edla.ambassy.service.cache._
 
 
 object Main extends App {
   // we need an ActorSystem to host our application in
-  val system = ActorSystem("simple-http-server")
+  val system = ActorSystem("ambassy-http-server")
 
   // every spray-can HttpServer (and HttpClient) needs an IOBridge for low-level network IO
   // (but several servers and/or clients can share one)
   val ioBridge = new IOBridge(system).start()
 
   // the handler actor replies to incoming HttpRequests
-  val handler = system.actorOf(Props[TestService])
+  val handler = system.actorOf(Props[CacheService])
 
   // create and start the spray-can HttpServer, telling it that we want requests to be
   // handled by our singleton handler

@@ -1,4 +1,4 @@
-package spray.examples
+package org.edla.ambassy.service.cache
 
 import java.util.concurrent.TimeUnit._
 import scala.concurrent.duration.Duration
@@ -11,7 +11,7 @@ import HttpMethods._
 import MediaTypes._
 
 
-class TestService extends Actor with ActorLogging {
+class CacheService extends Actor with ActorLogging {
 
   def receive = {
     case HttpRequest(GET, "/", _, _, _) =>
