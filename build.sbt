@@ -18,7 +18,10 @@ resolvers += "spray repo" at "http://repo.spray.io"
  // "org.clapper" %% "grizzled-slf4j" % "0.6.9",
  // "com.typesafe" % "config" % "0.6.0" */
 libraryDependencies ++= Seq(
-  "io.spray" % "spray-can" % "1.1-M5-SNAPSHOT",
+  "io.spray" % "spray-can" % "1.1-M4",
+  "org.specs2" % "specs2_2.10.0-RC1" % "1.12.2" % "test",
+  //waiting shapeless_2.10.0-RC1;1.2.3-SNAPSHOT
+  //"io.spray" % "spray-testkit" % "1.1-M4" % "test",
   "com.typesafe.akka" % "akka-actor_2.10.0-RC1" % "2.1.0-RC1",
   "com.typesafe.akka" % "akka-slf4j_2.10.0-RC1" % "2.1.0-RC1",
   "com.typesafe.akka" % "akka-testkit_2.10.0-RC1" % "2.1.0-RC1",
@@ -31,7 +34,6 @@ libraryDependencies ++= Seq(
 licenses := Seq("GNU GPL v3" -> url("http://www.gnu.org/licenses/gpl.html"))
 
 homepage := Some(url("http://github.com/newca12/ambassy"))
-
 
 publishMavenStyle := true
 
@@ -78,28 +80,14 @@ pomExtra := (
 		<encoding>UTF-8</encoding>
 	</properties>
   	<build>
-  	<!-- source and test directories not handled yet by sbt make-pom so added manually -->
-  	<sourceDirectory>src/main/scala</sourceDirectory>
-  	<testSourceDirectory>src/test/scala</testSourceDirectory>
-    <plugins>
+  		<!-- source and test directories not handled yet by sbt make-pom so added manually -->
+  		<sourceDirectory>src/main/scala</sourceDirectory>
+  		<testSourceDirectory>src/test/scala</testSourceDirectory>
+    	<plugins>
 			<plugin>
 				<groupId>net.alchim31.maven</groupId>
 				<artifactId>scala-maven-plugin</artifactId>
 				<version>3.1.0</version>
-				<configuration>
-                	<args>
-                    	<arg>-diagrams</arg>
-                    	<arg>-implicits</arg>
-                	</args>
-                </configuration>
-				<executions>
-					<execution>
-						<goals>
-							<goal>compile</goal>
-							<goal>testCompile</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 		</plugins>
 	</build>	
