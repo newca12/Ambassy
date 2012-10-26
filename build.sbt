@@ -10,18 +10,17 @@ scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature", "-optimize")
 
 scalacOptions in (Compile, doc) ++= Seq("-diagrams","-implicits")
 
+resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/"
+
 resolvers += "spray repo" at "http://repo.spray.io"
 
- // "com.typesafe.akka" % "akka-actor" % "2.0.3",
- // "com.typesafe.akka" % "akka-slf4j" % "2.0.3",
- // "ch.qos.logback" % "logback-classic" % "1.0.6",
- // "org.clapper" %% "grizzled-slf4j" % "0.6.9",
- // "com.typesafe" % "config" % "0.6.0" */
+resolvers += "Sonatype OSS Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots"
+
 libraryDependencies ++= Seq(
   "io.spray" % "spray-can" % "1.1-M4",
+  "io.spray" % "spray-routing" % "1.1-M4",
   "org.specs2" % "specs2_2.10.0-RC1" % "1.12.2" % "test",
-  //waiting shapeless_2.10.0-RC1;1.2.3-SNAPSHOT
-  //"io.spray" % "spray-testkit" % "1.1-M4" % "test",
+  "io.spray" % "spray-testkit" % "1.1-M4" % "test",
   "com.typesafe.akka" % "akka-actor_2.10.0-RC1" % "2.1.0-RC1",
   "com.typesafe.akka" % "akka-slf4j_2.10.0-RC1" % "2.1.0-RC1",
   "com.typesafe.akka" % "akka-testkit_2.10.0-RC1" % "2.1.0-RC1",
@@ -52,15 +51,20 @@ pomIncludeRepository := { _ => false }
 pomExtra := (
   <!-- repositories not handled yet by sbt make-pom so added manually -->
   <repositories>
+    <repository>  
+      <id>typesafe</id>
+      <name>Typesafe Repository</name>
+      <url>http://repo.typesafe.com/typesafe/releases/</url>
+    </repository>  
     <repository>
       <id>spray</id>
       <name>spray-can</name>
       <url>http://repo.spray.io</url>
     </repository>
     <repository>
-      <id>typesafe</id>
-      <name>Typesafe Repository</name>
-      <url>http://repo.typesafe.com/typesafe/releases/</url>
+      <id>sonatype-snapshots</id>
+      <name>Sonatype OSS Snapshots</name>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
     </repository>    
   </repositories>
   <scm>

@@ -1,4 +1,3 @@
-/*
 package org.edla.ambassy.service.cache
 
 import org.specs2.mutable.Specification
@@ -7,7 +6,7 @@ import spray.http._
 import StatusCodes._
 
 
-class DemoServiceSpec extends Specification with Specs2RouteTest with DemoService {
+class CacheServiceSpec extends Specification with Specs2RouteTest with CacheService {
   def actorRefFactory = system
   
   "The DemoService" should {
@@ -32,4 +31,3 @@ class DemoServiceSpec extends Specification with Specs2RouteTest with DemoServic
     }
   }
 }
-*/
