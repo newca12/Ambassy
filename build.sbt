@@ -4,7 +4,7 @@ organization := "org.edla"
 
 version := "0.1-SNAPSHOT"
 
-scalaVersion := "2.10.0-RC1"
+scalaVersion := "2.10.0-RC2"
 
 scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature", "-optimize")
 
@@ -18,14 +18,14 @@ resolvers += "spray repo" at "http://repo.spray.io"
  // "org.clapper" %% "grizzled-slf4j" % "0.6.9",
  // "com.typesafe" % "config" % "0.6.0" */
 libraryDependencies ++= Seq(
-  "io.spray" % "spray-can" % "1.1-M4",
-  "org.specs2" % "specs2_2.10.0-RC1" % "1.12.2" % "test",
+  "io.spray" % "spray-can" % "1.1-M5",
+  "org.specs2" % "specs2_2.10.0-RC2" % "1.12.2" % "test",
   //waiting shapeless_2.10.0-RC1;1.2.3-SNAPSHOT
   //"io.spray" % "spray-testkit" % "1.1-M4" % "test",
-  "com.typesafe.akka" % "akka-actor_2.10.0-RC1" % "2.1.0-RC1",
-  "com.typesafe.akka" % "akka-slf4j_2.10.0-RC1" % "2.1.0-RC1",
-  "com.typesafe.akka" % "akka-testkit_2.10.0-RC1" % "2.1.0-RC1",
-  "ch.qos.logback" % "logback-classic" % "1.0.6"
+  "com.typesafe.akka" % "akka-actor_2.10.0-RC2" % "2.1.0-RC2",
+  "com.typesafe.akka" % "akka-slf4j_2.10.0-RC2" % "2.1.0-RC2",
+  "com.typesafe.akka" % "akka-testkit_2.10.0-RC2" % "2.1.0-RC2",
+  "ch.qos.logback" % "logback-classic" % "1.0.7"
 )
 
 // Uncomment the following line to use one-jar (https://github.com/sbt/sbt-onejar)
@@ -88,6 +88,15 @@ pomExtra := (
 				<groupId>net.alchim31.maven</groupId>
 				<artifactId>scala-maven-plugin</artifactId>
 				<version>3.1.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>add-source</goal>
+							<goal>compile</goal>
+							<goal>testCompile</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>	
