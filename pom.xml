@@ -37,6 +37,13 @@
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </repository>
     </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>el4.elca-services.ch</id>
+            <name>el4</name>
+            <url>http://el4.elca-services.ch/el4j/maven2repository</url>
+        </pluginRepository>
+    </pluginRepositories>
     <scm>
         <url>git@github.com:newca12/ambassy.git</url>
         <connection>scm:git:git@github.com:newca12/ambassy.git</connection>
