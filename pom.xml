@@ -22,14 +22,19 @@
     <!-- repositories not handled yet by sbt make-pom so added manually -->
     <repositories>
         <repository>
+            <id>typesafe</id>
+            <name>Typesafe Repository</name>
+            <url>http://repo.typesafe.com/typesafe/releases/</url>
+        </repository>
+        <repository>
             <id>spray</id>
             <name>spray-can</name>
             <url>http://repo.spray.io</url>
         </repository>
         <repository>
-            <id>typesafe</id>
-            <name>Typesafe Repository</name>
-            <url>http://repo.typesafe.com/typesafe/releases/</url>
+            <id>sonatype-snapshots</id>
+            <name>Sonatype OSS Snapshots</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </repository>
     </repositories>
     <scm>
@@ -66,6 +71,40 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.12.4</version>
+                <configuration>
+                    <!-- surefire is disabled for scalatest, specs2 probably need it -->
+                    <skipTests>true</skipTests>
+                    <useFile>false</useFile>
+                    <!--
+					<includes>
+						<include>**/?Test.scala</include>
+                        <include>**/?Suite.scala</include>
+                        <include>**/?Spec.scala</include>
+					</includes> -->
+                </configuration>
+            </plugin>
+            <!-- enable scalatest -->
+            <plugin>
+                <groupId>org.scalatest</groupId>
+                <artifactId>scalatest-maven-plugin</artifactId>
+                <version>1.0-M2</version>
+                <configuration>
+                    <!-- <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory> -->
+                    <junitxml>.</junitxml>
+                    <filereports>WDF TestSuite.txt</filereports>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>test</id>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     <reporting>
@@ -89,9 +128,25 @@
             <version>1.1-M5</version>
         </dependency>
         <dependency>
-            <groupId>org.specs2</groupId>
-            <artifactId>specs2_2.10.0-RC2</artifactId>
-            <version>1.12.2</version>
+            <groupId>io.spray</groupId>
+            <artifactId>spray-routing</artifactId>
+            <version>1.1-M5</version>
+        </dependency>
+        <dependency>
+            <groupId>io.spray</groupId>
+            <artifactId>spray-caching</artifactId>
+            <version>1.1-M5</version>
+        </dependency>
+        <dependency>
+            <groupId>io.spray</groupId>
+            <artifactId>spray-testkit</artifactId>
+            <version>1.1-M5</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.scalatest</groupId>
+            <artifactId>scalatest_2.10.0-RC2</artifactId>
+            <version>2.0.M4-B2</version>
             <scope>test</scope>
         </dependency>
         <dependency>

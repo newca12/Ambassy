@@ -10,18 +10,19 @@ scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature", "-optimize")
 
 scalacOptions in (Compile, doc) ++= Seq("-diagrams","-implicits")
 
+resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/"
+
 resolvers += "spray repo" at "http://repo.spray.io"
 
- // "com.typesafe.akka" % "akka-actor" % "2.0.3",
- // "com.typesafe.akka" % "akka-slf4j" % "2.0.3",
- // "ch.qos.logback" % "logback-classic" % "1.0.6",
- // "org.clapper" %% "grizzled-slf4j" % "0.6.9",
- // "com.typesafe" % "config" % "0.6.0" */
+resolvers += "Sonatype OSS Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots"
+
 libraryDependencies ++= Seq(
   "io.spray" % "spray-can" % "1.1-M5",
-  "org.specs2" % "specs2_2.10.0-RC2" % "1.12.2" % "test",
-  //waiting shapeless_2.10.0-RC1;1.2.3-SNAPSHOT
-  //"io.spray" % "spray-testkit" % "1.1-M4" % "test",
+  "io.spray" % "spray-routing" % "1.1-M5",
+  "io.spray" % "spray-caching" % "1.1-M5",
+  "io.spray" % "spray-testkit" % "1.1-M5" % "test",
+  "org.scalatest" % "scalatest_2.10.0-RC2" % "2.0.M4-B2" % "test",
+  //"org.specs2" % "specs2_2.10.0-RC2" % "1.12.2" % "test",
   "com.typesafe.akka" % "akka-actor_2.10.0-RC2" % "2.1.0-RC2",
   "com.typesafe.akka" % "akka-slf4j_2.10.0-RC2" % "2.1.0-RC2",
   "com.typesafe.akka" % "akka-testkit_2.10.0-RC2" % "2.1.0-RC2",
@@ -52,15 +53,20 @@ pomIncludeRepository := { _ => false }
 pomExtra := (
   <!-- repositories not handled yet by sbt make-pom so added manually -->
   <repositories>
+    <repository>  
+      <id>typesafe</id>
+      <name>Typesafe Repository</name>
+      <url>http://repo.typesafe.com/typesafe/releases/</url>
+    </repository>  
     <repository>
       <id>spray</id>
       <name>spray-can</name>
       <url>http://repo.spray.io</url>
     </repository>
     <repository>
-      <id>typesafe</id>
-      <name>Typesafe Repository</name>
-      <url>http://repo.typesafe.com/typesafe/releases/</url>
+      <id>sonatype-snapshots</id>
+      <name>Sonatype OSS Snapshots</name>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
     </repository>    
   </repositories>
   <scm>
@@ -98,6 +104,40 @@ pomExtra := (
 					</execution>
 				</executions>
 			</plugin>
+            <plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.12.4</version>
+				<configuration>
+					<!-- surefire is disabled for scalatest, specs2 probably need it -->
+				    <skipTests>true</skipTests>
+					<useFile>false</useFile>
+					<!--
+					<includes>
+						<include>**/?Test.scala</include>
+                        <include>**/?Suite.scala</include>
+                        <include>**/?Spec.scala</include>
+					</includes> -->
+				</configuration>
+			</plugin>
+			<!-- enable scalatest -->
+			<plugin>
+				<groupId>org.scalatest</groupId>
+				<artifactId>scalatest-maven-plugin</artifactId>
+				<version>1.0-M2</version>
+				<configuration>
+					<!-- <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory> -->
+					<junitxml>.</junitxml>
+					<filereports>WDF TestSuite.txt</filereports>
+				</configuration>
+				<executions>
+					<execution>
+						<id>test</id>
+						<goals>
+							<goal>test</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>		
 		</plugins>
 	</build>	
 	<reporting>
