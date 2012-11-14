@@ -18,10 +18,10 @@ resolvers += "Sonatype OSS Snapshots" at "http://oss.sonatype.org/content/reposi
 
 libraryDependencies ++= Seq(
   "io.spray" % "spray-can" % "1.1-M5",
-  "io.spray" % "spray-routing" % "1.1-M4",
+  "io.spray" % "spray-routing" % "1.1-M5",
+  "io.spray" % "spray-caching" % "1.1-M5",
+  "io.spray" % "spray-testkit" % "1.1-M5" % "test",
   "org.specs2" % "specs2_2.10.0-RC2" % "1.12.2" % "test",
-  //waiting shapeless_2.10.0-RC1;1.2.3-SNAPSHOT
-  //"io.spray" % "spray-testkit" % "1.1-M4" % "test",
   "com.typesafe.akka" % "akka-actor_2.10.0-RC2" % "2.1.0-RC2",
   "com.typesafe.akka" % "akka-slf4j_2.10.0-RC2" % "2.1.0-RC2",
   "com.typesafe.akka" % "akka-testkit_2.10.0-RC2" % "2.1.0-RC2",
