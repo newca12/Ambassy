@@ -61,6 +61,15 @@
                 <groupId>net.alchim31.maven</groupId>
                 <artifactId>scala-maven-plugin</artifactId>
                 <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>add-source</goal>
+                            <goal>compile</goal>
+                            <goal>testCompile</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -77,56 +86,43 @@
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
-            <version>2.10.0-RC1</version>
-            <scope>compile</scope>
+            <version>2.10.0-RC2</version>
         </dependency>
         <dependency>
             <groupId>io.spray</groupId>
             <artifactId>spray-can</artifactId>
-            <version>1.1-M4</version>
-            <scope>compile</scope>
+            <version>1.1-M5</version>
         </dependency>
         <dependency>
             <groupId>io.spray</groupId>
             <artifactId>spray-routing</artifactId>
             <version>1.1-M4</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.specs2</groupId>
-            <artifactId>specs2_2.10.0-RC1</artifactId>
+            <artifactId>specs2_2.10.0-RC2</artifactId>
             <version>1.12.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>io.spray</groupId>
-            <artifactId>spray-testkit</artifactId>
-            <version>1.1-M4</version>
-            <scope>test</scope>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-actor_2.10.0-RC2</artifactId>
+            <version>2.1.0-RC2</version>
         </dependency>
         <dependency>
             <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-actor_2.10.0-RC1</artifactId>
-            <version>2.1.0-RC1</version>
-            <scope>compile</scope>
+            <artifactId>akka-slf4j_2.10.0-RC2</artifactId>
+            <version>2.1.0-RC2</version>
         </dependency>
         <dependency>
             <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-slf4j_2.10.0-RC1</artifactId>
-            <version>2.1.0-RC1</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-testkit_2.10.0-RC1</artifactId>
-            <version>2.1.0-RC1</version>
-            <scope>compile</scope>
+            <artifactId>akka-testkit_2.10.0-RC2</artifactId>
+            <version>2.1.0-RC2</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.0.6</version>
-            <scope>compile</scope>
+            <version>1.0.7</version>
         </dependency>
     </dependencies>
 </project>
