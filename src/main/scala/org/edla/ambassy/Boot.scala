@@ -4,18 +4,20 @@ import akka.actor.{ Props, ActorSystem }
 import spray.can.server.HttpServer
 import spray.io._
 import akka.actor.actorRef2Scala
-import org.edla.ambassy.service.cache.CacheServiceActor
+import org.edla.ambassy.service.cache.CacheService.CacheServiceActor
 
 object Boot extends App {
   // we need an ActorSystem to host our application in
   val system = ActorSystem("ambassy")
+  val cacheSystem = ActorSystem("cache")
+  val cacheService = cacheSystem.actorOf(Props[CacheServiceActor], "ambassy-cache-service")
 
   // every spray-can HttpServer (and HttpClient) needs an IOBridge for low-level network IO
   // (but several servers and/or clients can share one)
   val ioBridge = new IOBridge(system).start()
 
   // create and start our service actor
-  val service = system.actorOf(Props[CacheServiceActor], "ambassy-service")
+  val service = system.actorOf(Props[AmbassyServiceActor], "ambassy-service")
 
   // create and start the spray-can HttpServer, telling it that
   // we want requests to be handled by our singleton service actor

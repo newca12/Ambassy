@@ -16,7 +16,10 @@ resolvers += "spray repo" at "http://repo.spray.io"
 
 resolvers += "Sonatype OSS Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots"
 
+resolvers += "Temporary repository for redisclient_2.10" at "http://dev.nightlabs.org/maven-repository/repo/"
+
 libraryDependencies ++= Seq(
+  "net.debasishg" % "redisclient_2.10" % "2.8",
   "io.spray" % "spray-can" % "1.1-M5",
   "io.spray" % "spray-routing" % "1.1-M5",
   "io.spray" % "spray-caching" % "1.1-M5",
@@ -51,7 +54,9 @@ publishArtifact in Test := false
 pomIncludeRepository := { _ => false }
 
 pomExtra := (
-  <!-- repositories not handled yet by sbt make-pom so added manually -->
+  <!-- repositories not handled yet by sbt make-pom so added manually 
+       pluginRepository needed for add-source goal
+  -->
   <repositories>
     <repository>  
       <id>typesafe</id>
@@ -67,7 +72,12 @@ pomExtra := (
       <id>sonatype-snapshots</id>
       <name>Sonatype OSS Snapshots</name>
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-    </repository>    
+    </repository>
+    <repository>
+      <id>nightlabs</id>
+      <name>Temporary repository for redisclient_2.10</name>
+      <url>http://dev.nightlabs.org/maven-repository/repo/</url>
+    </repository>          
   </repositories>
   <pluginRepositories>
 	<pluginRepository>

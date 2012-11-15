@@ -1,4 +1,4 @@
-package org.edla.ambassy.service.cache
+package org.edla.ambassy
 
 import java.io.File
 import org.parboiled.common.FileUtils
@@ -15,10 +15,11 @@ import spray.util._
 import spray.http._
 import MediaTypes._
 import CachingDirectives._
+import org.edla.ambassy.service.cache.CacheService
 
 // we don't implement our route structure directly in the service actor because
 // we want to be able to test it independently, without having to spin up an actor
-class CacheServiceActor extends Actor with CacheService {
+class AmbassyServiceActor extends Actor with AmbassyService {
 
   // the HttpService trait defines only one abstract member, which
   // connects the services environment to the enclosing actor or test
@@ -31,7 +32,7 @@ class CacheServiceActor extends Actor with CacheService {
 }
 
 // this trait defines our service behavior independently from the service actor
-trait CacheService extends HttpService {
+trait AmbassyService extends HttpService {
 
   val cacheRoute = {
     get {
@@ -92,17 +93,18 @@ trait CacheService extends HttpService {
         }
       } ~
       //http://localhost:8080/addtocache/x
-      path("addtocache" / IntNumber) { id =>
-        get {
+      path("addtocache" / PathElement) { elem =>
+        get { 
+          Boot.cacheService ! CacheService.Push(elem)
           complete {
-            "Received GET request for addtocache " + id
-          }
-        } ~
+            "Received GET request for addtocache " + elem
+          } 
+        } /*~
           put {
             complete {
               "Received PUT request for addtocache " + id
             }
-          }
+          } */
       }
   }
 
