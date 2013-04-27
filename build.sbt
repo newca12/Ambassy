@@ -4,7 +4,7 @@ organization := "org.edla"
 
 version := "0.1-SNAPSHOT"
 
-scalaVersion := "2.10.0-RC2"
+scalaVersion := "2.10.1"
 
 scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature", "-optimize")
 
@@ -14,21 +14,22 @@ resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/release
 
 resolvers += "spray repo" at "http://repo.spray.io"
 
+resolvers += "spray nightly repo" at "http://nightlies.spray.io"
+
 resolvers += "Sonatype OSS Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots"
 
-resolvers += "Temporary repository for redisclient_2.10" at "http://dev.nightlabs.org/maven-repository/repo/"
-
 libraryDependencies ++= Seq(
-  "net.debasishg" % "redisclient_2.10" % "2.8",
-  "io.spray" % "spray-can" % "1.1-M5",
-  "io.spray" % "spray-routing" % "1.1-M5",
-  "io.spray" % "spray-caching" % "1.1-M5",
-  "io.spray" % "spray-testkit" % "1.1-M5" % "test",
-  "org.scalatest" % "scalatest_2.10.0-RC2" % "2.0.M4-B2" % "test",
+  "net.debasishg" %% "redisclient" % "2.10",
+  "io.spray" % "spray-can" % "1.1-20130426",
+  "io.spray" % "spray-io" % "1.1-20130426",
+  "io.spray" % "spray-routing" % "1.1-20130426",
+  "io.spray" % "spray-caching" % "1.1-20130426",
+  "io.spray" % "spray-testkit" % "1.1-20130426" % "test",
+  "org.scalatest" %% "scalatest" % "1.9.1" % "test",
   //"org.specs2" % "specs2_2.10.0-RC2" % "1.12.2" % "test",
-  "com.typesafe.akka" % "akka-actor_2.10.0-RC2" % "2.1.0-RC2",
-  "com.typesafe.akka" % "akka-slf4j_2.10.0-RC2" % "2.1.0-RC2",
-  "com.typesafe.akka" % "akka-testkit_2.10.0-RC2" % "2.1.0-RC2",
+  "com.typesafe.akka" %% "akka-actor" % "2.1.2",
+  "com.typesafe.akka" %% "akka-slf4j" % "2.1.2",
+  "com.typesafe.akka" %% "akka-testkit" % "2.1.2",
   "ch.qos.logback" % "logback-classic" % "1.0.7"
 )
 
@@ -51,34 +52,12 @@ publishTo <<= version { (v: String) =>
 
 publishArtifact in Test := false
 
-pomIncludeRepository := { _ => false }
+pomIncludeRepository := { _ => true }
 
 pomExtra := (
   <!-- repositories not handled yet by sbt make-pom so added manually 
        pluginRepository needed for add-source goal
   -->
-  <repositories>
-    <repository>  
-      <id>typesafe</id>
-      <name>Typesafe Repository</name>
-      <url>http://repo.typesafe.com/typesafe/releases/</url>
-    </repository>  
-    <repository>
-      <id>spray</id>
-      <name>spray-can</name>
-      <url>http://repo.spray.io</url>
-    </repository>
-    <repository>
-      <id>sonatype-snapshots</id>
-      <name>Sonatype OSS Snapshots</name>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-    </repository>
-    <repository>
-      <id>nightlabs</id>
-      <name>Temporary repository for redisclient_2.10</name>
-      <url>http://dev.nightlabs.org/maven-repository/repo/</url>
-    </repository>          
-  </repositories>
   <pluginRepositories>
 	<pluginRepository>
 		<id>el4.elca-services.ch</id>

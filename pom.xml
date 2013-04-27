@@ -22,28 +22,6 @@
     <!-- repositories not handled yet by sbt make-pom so added manually 
        pluginRepository needed for add-source goal
   -->
-    <repositories>
-        <repository>
-            <id>typesafe</id>
-            <name>Typesafe Repository</name>
-            <url>http://repo.typesafe.com/typesafe/releases/</url>
-        </repository>
-        <repository>
-            <id>spray</id>
-            <name>spray-can</name>
-            <url>http://repo.spray.io</url>
-        </repository>
-        <repository>
-            <id>sonatype-snapshots</id>
-            <name>Sonatype OSS Snapshots</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </repository>
-        <repository>
-            <id>nightlabs</id>
-            <name>Temporary repository for redisclient_2.10</name>
-            <url>http://dev.nightlabs.org/maven-repository/repo/</url>
-        </repository>
-    </repositories>
     <pluginRepositories>
         <pluginRepository>
             <id>el4.elca-services.ch</id>
@@ -134,54 +112,59 @@
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
-            <version>2.10.0-RC2</version>
+            <version>2.10.1</version>
         </dependency>
         <dependency>
             <groupId>net.debasishg</groupId>
             <artifactId>redisclient_2.10</artifactId>
-            <version>2.8</version>
+            <version>2.10</version>
         </dependency>
         <dependency>
             <groupId>io.spray</groupId>
             <artifactId>spray-can</artifactId>
-            <version>1.1-M5</version>
+            <version>1.1-20130426</version>
+        </dependency>
+        <dependency>
+            <groupId>io.spray</groupId>
+            <artifactId>spray-io</artifactId>
+            <version>1.1-20130426</version>
         </dependency>
         <dependency>
             <groupId>io.spray</groupId>
             <artifactId>spray-routing</artifactId>
-            <version>1.1-M5</version>
+            <version>1.1-20130426</version>
         </dependency>
         <dependency>
             <groupId>io.spray</groupId>
             <artifactId>spray-caching</artifactId>
-            <version>1.1-M5</version>
+            <version>1.1-20130426</version>
         </dependency>
         <dependency>
             <groupId>io.spray</groupId>
             <artifactId>spray-testkit</artifactId>
-            <version>1.1-M5</version>
+            <version>1.1-20130426</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.scalatest</groupId>
-            <artifactId>scalatest_2.10.0-RC2</artifactId>
-            <version>2.0.M4-B2</version>
+            <artifactId>scalatest_2.10</artifactId>
+            <version>1.9.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-actor_2.10.0-RC2</artifactId>
-            <version>2.1.0-RC2</version>
+            <artifactId>akka-actor_2.10</artifactId>
+            <version>2.1.2</version>
         </dependency>
         <dependency>
             <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-slf4j_2.10.0-RC2</artifactId>
-            <version>2.1.0-RC2</version>
+            <artifactId>akka-slf4j_2.10</artifactId>
+            <version>2.1.2</version>
         </dependency>
         <dependency>
             <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-testkit_2.10.0-RC2</artifactId>
-            <version>2.1.0-RC2</version>
+            <artifactId>akka-testkit_2.10</artifactId>
+            <version>2.1.2</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -189,4 +172,30 @@
             <version>1.0.7</version>
         </dependency>
     </dependencies>
+    <repositories>
+        <repository>
+            <id>TypesafeRepository</id>
+            <name>Typesafe Repository</name>
+            <url>http://repo.typesafe.com/typesafe/releases/</url>
+            <layout>default</layout>
+        </repository>
+        <repository>
+            <id>sprayrepo</id>
+            <name>spray repo</name>
+            <url>http://repo.spray.io/</url>
+            <layout>default</layout>
+        </repository>
+        <repository>
+            <id>spraynightlyrepo</id>
+            <name>spray nightly repo</name>
+            <url>http://nightlies.spray.io/</url>
+            <layout>default</layout>
+        </repository>
+        <repository>
+            <id>SonatypeOSSSnapshots</id>
+            <name>Sonatype OSS Snapshots</name>
+            <url>http://oss.sonatype.org/content/repositories/snapshots/</url>
+            <layout>default</layout>
+        </repository>
+    </repositories>
 </project>
