@@ -13,9 +13,14 @@ import spray.httpx.marshalling.Marshaller
 import spray.httpx.encoding.Gzip
 import spray.util._
 import spray.http._
+import spray.http.ContentType._
 import MediaTypes._
 import CachingDirectives._
 import org.edla.ambassy.service.cache.CacheService
+import spray.json.DefaultJsonProtocol
+import scala.concurrent.Future
+import spray.json._
+import DefaultJsonProtocol._
 
 // we don't implement our route structure directly in the service actor because
 // we want to be able to test it independently, without having to spin up an actor
@@ -34,8 +39,23 @@ class AmbassyServiceActor extends Actor with AmbassyService {
 // this trait defines our service behavior independently from the service actor
 trait AmbassyService extends HttpService {
 
+case class TranscoQuery(source: String, profil: Int)
+
+object MyJsonProtocol extends DefaultJsonProtocol {
+  implicit val colorFormat = jsonFormat2(TranscoQuery)
+}
+
+import MyJsonProtocol._
+
+val jsonTranscoQuery = TranscoQuery("/tmp/a", 1).toJson
+val transcoQuery = jsonTranscoQuery.convertTo[TranscoQuery]
+
   // we use the enclosing ActorContext's or ActorSystem's dispatcher for our Futures and Scheduler
   implicit def executionContext = actorRefFactory.dispatcher
+
+  //def testGet :spray.json.RootJsonFormat[AmbassyService.this.Person] = {
+  //  Person("Bob", "Parr", 32)
+  //}
 
   val cacheRoute = {
     get {
@@ -45,7 +65,13 @@ trait AmbassyService extends HttpService {
         }
       } ~
         path("ping") {
-          complete("PONG!")
+          //complete("PONG!")
+          complete {
+            // Future[Person] {
+        	jsonTranscoQuery.prettyPrint
+
+          }
+          //}
         } ~
         path("stats") {
           complete {
@@ -83,7 +109,7 @@ trait AmbassyService extends HttpService {
           }
         }
       } ~
-      //http://localhost:8080/addtocache/x
+      //http://localhost:8080/addtocache/x:file
       path("addtocache" / Segment) { elem =>
         get {
           Boot.cacheService ! CacheService.Push(elem)
@@ -126,7 +152,10 @@ trait AmbassyService extends HttpService {
     </html>
 
   implicit val statsMarshaller: Marshaller[Stats] =
-    Marshaller.delegate[Stats, String](ContentType.`text/plain`) { stats =>
+    //what is the problem with the syntax : ContentTypes.`text/plain` ?
+    //by the way replaced thanks to this :
+    //val `text/plain` = ContentType(MediaTypes.`text/plain`)
+    Marshaller.delegate[Stats, String](ContentType(MediaTypes.`text/plain`)) { stats =>
       "Uptime                : " + stats.uptime.formatHMS + '\n' +
         "Total requests        : " + stats.totalRequests + '\n' +
         "Open requests         : " + stats.openRequests + '\n' +

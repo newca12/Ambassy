@@ -20,17 +20,18 @@ resolvers += "Sonatype OSS Snapshots" at "http://oss.sonatype.org/content/reposi
 
 libraryDependencies ++= Seq(
   "net.debasishg" %% "redisclient" % "2.10",
-  "io.spray" % "spray-can" % "1.1-20130426",
-  "io.spray" % "spray-io" % "1.1-20130426",
-  "io.spray" % "spray-routing" % "1.1-20130426",
-  "io.spray" % "spray-caching" % "1.1-20130426",
-  "io.spray" % "spray-testkit" % "1.1-20130426" % "test",
+  "io.spray" % "spray-can" % "1.2-20130605",
+  "io.spray" % "spray-io" % "1.2-20130605",
+  "io.spray" % "spray-routing" % "1.2-20130605",
+  "io.spray" % "spray-caching" % "1.2-20130605",
+  "io.spray" %%  "spray-json" % "1.2.5",
+  "com.typesafe.akka" %% "akka-actor" % "2.2.0-RC1",
+  "com.typesafe.akka" %% "akka-slf4j" % "2.2.0-RC1",
+  "com.typesafe.akka" %% "akka-testkit" % "2.2.0-RC1",
+  "ch.qos.logback" % "logback-classic" % "1.0.7",
+  "io.spray" % "spray-testkit" % "1.2-20130605" % "test",
   "org.scalatest" %% "scalatest" % "1.9.1" % "test",
-  //"org.specs2" % "specs2_2.10.0-RC2" % "1.12.2" % "test",
-  "com.typesafe.akka" %% "akka-actor" % "2.1.2",
-  "com.typesafe.akka" %% "akka-slf4j" % "2.1.2",
-  "com.typesafe.akka" %% "akka-testkit" % "2.1.2",
-  "ch.qos.logback" % "logback-classic" % "1.0.7"
+  "org.specs2" %% "specs2" % "1.14" % "test"
 )
 
 // Uncomment the following line to use one-jar (https://github.com/sbt/sbt-onejar)
