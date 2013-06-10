@@ -1,3 +1,7 @@
+import AssemblyKeys._ // put this at the top of the file
+
+assemblySettings
+
 name := "Ambassy"
 
 organization := "org.edla"
@@ -134,7 +138,7 @@ pomExtra := (
 						</goals>
 					</execution>
 				</executions>
-			</plugin>		
+			</plugin>
 		</plugins>
 	</build>	
 	<reporting>

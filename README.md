@@ -11,6 +11,9 @@ The purpose of [edla.org](http://www.edla.org) is to promote the state of the ar
 ## How to use it
 This is an ongoing work. Ambassy is not yet usable.
 
+## How to make a runnable single jar
+sbt assembly
+
 ## TODO
 scala-redis : try PoC done for using Akka IO 2.2
 https://github.com/debasishg/scala-redis/tree/redis-akka-io
