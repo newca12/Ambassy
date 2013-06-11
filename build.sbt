@@ -8,7 +8,7 @@ organization := "org.edla"
 
 version := "0.1-SNAPSHOT"
 
-scalaVersion := "2.10.1"
+scalaVersion := "2.10.2"
 
 scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature", "-optimize")
 
@@ -18,22 +18,22 @@ resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/release
 
 resolvers += "spray repo" at "http://repo.spray.io"
 
-resolvers += "spray nightly repo" at "http://nightlies.spray.io"
+//resolvers += "spray nightly repo" at "http://nightlies.spray.io"
 
 resolvers += "Sonatype OSS Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots"
 
 libraryDependencies ++= Seq(
   "net.debasishg" %% "redisclient" % "2.10",
-  "io.spray" % "spray-can" % "1.2-20130605",
-  "io.spray" % "spray-io" % "1.2-20130605",
-  "io.spray" % "spray-routing" % "1.2-20130605",
-  "io.spray" % "spray-caching" % "1.2-20130605",
+  "io.spray" % "spray-can" % "1.2-M8",
+  "io.spray" % "spray-io" % "1.2-M8",
+  "io.spray" % "spray-routing" % "1.2-M8",
+  "io.spray" % "spray-caching" % "1.2-M8",
   "io.spray" %%  "spray-json" % "1.2.5",
   "com.typesafe.akka" %% "akka-actor" % "2.2.0-RC1",
   "com.typesafe.akka" %% "akka-slf4j" % "2.2.0-RC1",
   "com.typesafe.akka" %% "akka-testkit" % "2.2.0-RC1",
   "ch.qos.logback" % "logback-classic" % "1.0.7",
-  "io.spray" % "spray-testkit" % "1.2-20130605" % "test",
+  "io.spray" % "spray-testkit" % "1.2-M8" % "test",
   "org.scalatest" %% "scalatest" % "1.9.1" % "test",
   "org.specs2" %% "specs2" % "1.14" % "test"
 )
@@ -92,9 +92,18 @@ pomExtra := (
   		<testSourceDirectory>src/test/scala</testSourceDirectory>
     	<plugins>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.1</version>
+				<configuration>
+					<source>1.7</source>
+					<target>1.7</target>
+				</configuration>
+			</plugin>      	
+			<plugin>
 				<groupId>net.alchim31.maven</groupId>
 				<artifactId>scala-maven-plugin</artifactId>
-				<version>3.1.0</version>
+				<version>3.1.5</version>
 				<executions>
 					<execution>
 						<goals>
@@ -146,7 +155,7 @@ pomExtra := (
 			<plugin>
 				<groupId>net.alchim31.maven</groupId>
 				<artifactId>scala-maven-plugin</artifactId>
-				<version>3.1.0</version>
+				<version>3.1.5</version>
 			</plugin>
 		</plugins>
 	</reporting>
