@@ -68,6 +68,9 @@ trait AmbassyService extends HttpService { //TODO simplify with SimpleRoutingApp
         complete(index)
       }
     } ~
+      path("ping") {
+        complete("PONG!")
+      } ~
       path("version") {
         get {
           complete {

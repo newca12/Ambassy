@@ -1,4 +1,4 @@
-package org.edla.ambassy
+package org.edla.ambassy.service.cache
 
 //import org.specs2.mutable.Specification
 //import spray.testkit.Specs2RouteTest
@@ -7,6 +7,7 @@ import org.scalatest.FreeSpec
 import org.scalatest.matchers.MustMatchers
 import spray.http._
 import StatusCodes._
+import org.edla.ambassy._
 
 class ScalatestRouteTestSpec extends FreeSpec with MustMatchers with ScalatestRouteTest with AmbassyService {
   def actorRefFactory = system
