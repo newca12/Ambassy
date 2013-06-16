@@ -1,7 +1,7 @@
-# Ambassy [![Build Status](https://buildhive.cloudbees.com/job/newca12/job/Ambassy/badge/icon)](https://buildhive.cloudbees.com/job/newca12/job/Ambassy/)
+# Ambassy [![Build Status](https://buildhive.cloudbees.com/job/newca12/job/Ambassy/badge/icon)](https://buildhive.cloudbees.com/job/newca12/job/Ambassy/) [![Ohloh](https://www.ohloh.net/p/Ambassy/widgets/project_thin_badge.gif)](https://www.ohloh.net/p/Ambassy)
 
 ## About
-Embrace the Unix philosophy, write program that do one thing and do it well.
+Embrace the Unix philosophy, write program that do one thing and do it well.  
 And if your programs need something else to be done they should contact their local ambassy.
 
 Ambassy is an EDLA project.
@@ -9,7 +9,9 @@ Ambassy is an EDLA project.
 The purpose of [edla.org](http://www.edla.org) is to promote the state of the art in various domains.
 
 ## How to use it
-This is an ongoing work. Ambassy is not yet usable.
+* start a redis server
+* java -jar target/scala-2.10/Ambassy-assembly-0.1-SNAPSHOT.jar
+* http://localhost:8080/addtocache/3 (push element of size 3 and pop required elements to keep cache size constant)
 
 ## How to make a runnable single jar
 sbt assembly

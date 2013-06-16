@@ -28,6 +28,7 @@ libraryDependencies ++= Seq(
   "io.spray" % "spray-io" % "1.2-M8",
   "io.spray" % "spray-routing" % "1.2-M8",
   "io.spray" % "spray-caching" % "1.2-M8",
+  "io.spray" % "spray-client" % "1.2-M8",
   "io.spray" %%  "spray-json" % "1.2.5",
   "com.typesafe.akka" %% "akka-actor" % "2.2.0-RC1",
   "com.typesafe.akka" %% "akka-slf4j" % "2.2.0-RC1",

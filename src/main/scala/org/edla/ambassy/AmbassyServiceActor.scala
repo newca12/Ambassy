@@ -21,6 +21,14 @@ import spray.json.DefaultJsonProtocol
 import scala.concurrent.Future
 import spray.json._
 import DefaultJsonProtocol._
+import org.edla.ambassy.protocol._
+import org.edla.ambassy.protocol.Version
+import org.edla.ambassy.protocol.CommandProtocol._
+import spray.httpx.SprayJsonSupport.sprayJsonMarshaller
+import spray.httpx.SprayJsonSupport._
+import spray.routing.SimpleRoutingApp
+import shapeless.get
+import scala.sys.process._
 
 // we don't implement our route structure directly in the service actor because
 // we want to be able to test it independently, without having to spin up an actor
@@ -37,100 +45,88 @@ class AmbassyServiceActor extends Actor with AmbassyService {
 }
 
 // this trait defines our service behavior independently from the service actor
-trait AmbassyService extends HttpService {
+trait AmbassyService extends HttpService { //TODO simplify with SimpleRoutingApp
 
-case class TranscoQuery(source: String, profil: Int)
+  case class TranscoQuery(source: String, profil: Int)
 
-object MyJsonProtocol extends DefaultJsonProtocol {
-  implicit val colorFormat = jsonFormat2(TranscoQuery)
-}
+  object MyJsonProtocol extends DefaultJsonProtocol {
+    implicit val colorFormat = jsonFormat2(TranscoQuery)
+  }
 
-import MyJsonProtocol._
+  import MyJsonProtocol._
 
-val jsonTranscoQuery = TranscoQuery("/tmp/a", 1).toJson
-val transcoQuery = jsonTranscoQuery.convertTo[TranscoQuery]
+  //val jsonTranscoQuery = TranscoQuery("/tmp/a", 1).toJson
+  //val transcoQuery = jsonTranscoQuery.convertTo[TranscoQuery]
+  //jsonTranscoQuery.prettyPrint
 
   // we use the enclosing ActorContext's or ActorSystem's dispatcher for our Futures and Scheduler
   implicit def executionContext = actorRefFactory.dispatcher
 
-  //def testGet :spray.json.RootJsonFormat[AmbassyService.this.Person] = {
-  //  Person("Bob", "Parr", 32)
-  //}
-
   val cacheRoute = {
-    get {
-      path("") {
-        respondWithMediaType(`text/html`) { // XML is marshalled to `text/xml` by default, so we simply override here
-          complete(index)
-        }
-      } ~
-        path("ping") {
-          //complete("PONG!")
-          complete {
-            // Future[Person] {
-        	jsonTranscoQuery.prettyPrint
-
-          }
-          //}
-        } ~
-        path("stats") {
-          complete {
-            actorRefFactory.actorFor("/user/IO-HTTP/listener-0")
-              .ask(Http.GetStats)(1.second)
-              .mapTo[Stats]
-          }
-        } ~
-        path("timeout") { ctx =>
-          // we simply let the request drop to provoke a timeout
-        } ~
-        path("cached") {
-          cache(simpleRouteCache) { ctx =>
-            in(1500.millis) {
-              ctx.complete("This resource is only slow the first time!\n" +
-                "It was produced on " + DateTime.now.toIsoDateTimeString + "\n\n" +
-                "(Note that your browser will likely enforce a cache invalidation with a\n" +
-                "`Cache-Control: max-age=0` header when you click 'reload', so you might need to `curl` this\n" +
-                "resource in order to be able to see the cache effect!)")
-            }
-          }
-        } ~
-        path("crash") { ctx =>
-          sys.error("crash boom bang")
-        } ~
-        path("fail") {
-          failWith(new RuntimeException("aaaahhh"))
-        }
+    path("") {
+      respondWithMediaType(`text/html`) { // XML is marshalled to `text/xml` by default, so we simply override here
+        complete(index)
+      }
     } ~
-      (post | parameter('method ! "post")) {
-        path("stop") {
+      path("version") {
+        get {
           complete {
-            in(1.second) { actorSystem.shutdown() }
-            "Shutting down in 1 second..."
+            "0.1"
           }
         }
       } ~
-      //http://localhost:8080/addtocache/x:file
-      path("addtocache" / Segment) { elem =>
+      path("version.json") {
         get {
-          Boot.cacheService ! CacheService.Push(elem)
           complete {
-            "Received GET request for addtocache " + elem
-          }
-        } /*~
-          put {
-            complete {
-              "Received PUT request for addtocache " + id
-            }
-          } */
-      } /* ~
-      path("addtocache") {
-        post {
-          content(as[CacheEntry]) { cacheEntry =>
-            completeWith(CacheServiceActor ? addToCache(cacheEntry)).mapTo[CacheEntry]
+            Version("0.1")
           }
         }
-      }*/
-  }
+      } ~
+      path("command.json") {
+        get {
+          complete("test")
+        } ~
+          post(
+            entity(as[CommandOrder]) { commandOrder =>
+              complete {
+                run(commandOrder.name)
+              }
+            })
+      } ~
+      path("stats") {
+        complete {
+          actorRefFactory.actorFor("/user/IO-HTTP/listener-0")
+            .ask(Http.GetStats)(1.second)
+            .mapTo[Stats]
+        }
+      } ~
+      path("timeout") { ctx =>
+        // we simply let the request drop to provoke a timeout
+      } ~
+      path("crash") { ctx =>
+        sys.error("crash boom bang")
+      } ~
+      path("fail") {
+        failWith(new RuntimeException("aaaahhh"))
+      }
+  } ~
+    (post | parameter('method ! "post")) {
+      path("stop") {
+        complete {
+          in(1.second) { actorSystem.shutdown() }
+          "Shutting down in 1 second..."
+        }
+      }
+    } ~
+    //http://localhost:8080/addtocache/x:file
+    path("addtocache" / Segment) { elem =>
+      get {
+        Boot.cacheService ! CacheService.Push(elem)
+        complete {
+          "Received GET request for addtocache " + elem
+        }
+      }
+    }
 
   lazy val simpleRouteCache = routeCache()
 
@@ -168,4 +164,14 @@ val transcoQuery = jsonTranscoQuery.convertTo[TranscoQuery]
 
   def in[U](duration: FiniteDuration)(body: => U): Unit =
     actorSystem.scheduler.scheduleOnce(duration)(body)
+
+  def run(in: String): CommandResult = {
+    val qb = Process(in)
+    var out = List[String]()
+    var err = List[String]()
+
+    val exit = qb ! ProcessLogger((s) => out ::= s, (s) => err ::= s)
+
+    CommandResult(out.reverse, err.reverse, exit)
+  }
 }
