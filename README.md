@@ -18,7 +18,9 @@ sbt assembly
 
 ## TODO
 scala-redis : try PoC done for using Akka IO 2.2
-https://github.com/debasishg/scala-redis/tree/redis-akka-io
+https://github.com/debasishg/scala-redis/tree/redis-akka-io  
+or  
+https://github.com/chrisdinn/brando 
 
 ## License
 © 2012 Olivier ROLAND. Distributed under the GPLv3 License.
