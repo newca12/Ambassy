@@ -59,6 +59,14 @@ trait AmbassyService extends HttpService { //TODO simplify with SimpleRoutingApp
   //val transcoQuery = jsonTranscoQuery.convertTo[TranscoQuery]
   //jsonTranscoQuery.prettyPrint
 
+  val action1 = Action("convert", "-resize 72x72^^  -gravity center -extent 72x72 /tmp/out2.png", "", None, None, None)
+  val profil1: Profile = Profile("id1", "", "", "", List("a1"))
+  val profil2: Profile = Profile("id1", "", "", "", List("a1"))
+  val test = profil1.actions
+  //var profiles = Profiles(List(profil1, profil2))
+  val profiles: Map[String, Profile] = Map((profil1.id, profil1), (profil2.id, profil2))
+  val actions: Map[String, Action] = Map((action1.id, action1))
+
   // we use the enclosing ActorContext's or ActorSystem's dispatcher for our Futures and Scheduler
   implicit def executionContext = actorRefFactory.dispatcher
 
@@ -90,9 +98,24 @@ trait AmbassyService extends HttpService { //TODO simplify with SimpleRoutingApp
           complete("test")
         } ~
           post(
-            entity(as[CommandOrder]) { commandOrder =>
+            entity(as[CommandTransco]) { commandTransco =>
               complete {
-                run(commandOrder.name)
+                //TODO check profile existence
+                val profile = profiles.getOrElse(commandTransco.id, profil1)
+                val fileIn = commandTransco.path
+                val action = actions.getOrElse(profile.actions.head, action1)
+                run(action.id + " " + fileIn + " " + action.inOpt)
+              }
+            })
+      } ~
+      path("profils.json") {
+        get {
+          complete(profiles)
+        } ~
+          post(
+            entity(as[Profiles]) { profiles =>
+              complete {
+                profiles
               }
             })
       } ~
@@ -169,6 +192,7 @@ trait AmbassyService extends HttpService { //TODO simplify with SimpleRoutingApp
     actorSystem.scheduler.scheduleOnce(duration)(body)
 
   def run(in: String): CommandResult = {
+    println(in)
     val qb = Process(in)
     var out = List[String]()
     var err = List[String]()
