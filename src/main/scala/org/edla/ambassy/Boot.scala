@@ -49,8 +49,8 @@ optional arguments:
   println(options)
   
   val conf = ConfigFactory.parseFile(new File("./application.conf"))
-  val bar1 = conf.getInt("simple-app.answer");
-  println(bar1)
+  val cache = conf.getBoolean("ambassy-services.cache");
+  println("cache service : " + cache)
 
   // we need an ActorSystem to host our application in
   val cacheSystem = ActorSystem("cache")

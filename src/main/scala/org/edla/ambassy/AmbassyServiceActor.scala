@@ -1,34 +1,40 @@
 package org.edla.ambassy
 
-import java.io.File
-import org.parboiled.common.FileUtils
-import scala.concurrent.duration._
-import akka.actor.{ Props, Actor }
-import akka.pattern.ask
-import spray.routing.{ HttpService, RequestContext }
-import spray.routing.directives.CachingDirectives
-import spray.can.server.Stats
-import spray.can.Http
-import spray.httpx.marshalling.Marshaller
-import spray.httpx.encoding.Gzip
-import spray.util._
-import spray.http._
-import spray.http.ContentType._
-import MediaTypes._
-import CachingDirectives._
-import org.edla.ambassy.service.cache.CacheService
-import spray.json.DefaultJsonProtocol
-import scala.concurrent.Future
-import spray.json._
-import DefaultJsonProtocol._
-import org.edla.ambassy.protocol._
+import scala.concurrent.duration.DurationInt
+import scala.concurrent.duration.FiniteDuration
+import scala.sys.process.Process
+import scala.sys.process.ProcessLogger
+
+import org.edla.ambassy.protocol.Action
+import org.edla.ambassy.protocol.CommandResult
+import org.edla.ambassy.protocol.CommandTransco
+import org.edla.ambassy.protocol.Profile
 import org.edla.ambassy.protocol.Version
-import org.edla.ambassy.protocol.CommandProtocol._
+import org.edla.ambassy.service.cache.CacheService
+
+import akka.actor.Actor
+import akka.actor.actorRef2Scala
+import akka.pattern.ask
+import akka.util.Timeout.durationToTimeout
+import spray.can.Http
+import spray.can.server.Stats
+import spray.http.ContentType
+import spray.http.MediaTypes
+import spray.http.MediaTypes._
 import spray.httpx.SprayJsonSupport.sprayJsonMarshaller
-import spray.httpx.SprayJsonSupport._
-import spray.routing.SimpleRoutingApp
-import shapeless.get
-import scala.sys.process._
+import spray.httpx.SprayJsonSupport.sprayJsonUnmarshaller
+import spray.httpx.marshalling.Marshaller
+import spray.json.DefaultJsonProtocol
+import spray.routing.Directive.pimpApply
+import spray.routing.HttpService
+import spray.routing.directives.CachingDirectives.routeCache
+import spray.routing.directives.CompletionMagnet.fromObject
+import spray.routing.directives.ParamDefMagnet.apply
+import spray.util.actorSystem
+import spray.util.pimpDuration
+
+//import org.edla.ambassy.protocol.CommandProtocol._ needed for implicits but not bring by Organize imports
+import org.edla.ambassy.protocol.CommandProtocol._
 
 // we don't implement our route structure directly in the service actor because
 // we want to be able to test it independently, without having to spin up an actor
@@ -47,25 +53,14 @@ class AmbassyServiceActor extends Actor with AmbassyService {
 // this trait defines our service behavior independently from the service actor
 trait AmbassyService extends HttpService { //TODO simplify with SimpleRoutingApp
 
-  case class TranscoQuery(source: String, profil: Int)
-
-  object MyJsonProtocol extends DefaultJsonProtocol {
-    implicit val colorFormat = jsonFormat2(TranscoQuery)
-  }
-
-  import MyJsonProtocol._
-
-  //val jsonTranscoQuery = TranscoQuery("/tmp/a", 1).toJson
-  //val transcoQuery = jsonTranscoQuery.convertTo[TranscoQuery]
-  //jsonTranscoQuery.prettyPrint
-
   val action1 = Action("convert", "-resize 72x72^^  -gravity center -extent 72x72 /tmp/out2.png", "", None, None, None)
-  val profil1: Profile = Profile("id1", "", "", "", List("a1"))
-  val profil2: Profile = Profile("id1", "", "", "", List("a1"))
+  val action2 = Action("convert", "-resize 72x72^^  -gravity center -extent 72x72 /tmp/out2.png", "", None, None, None)
+  val profil1: Profile = Profile("id1", "", "", "", List(action1))
+  val profil2: Profile = Profile("id2", "", "", "", List(action2))
   val test = profil1.actions
-  //var profiles = Profiles(List(profil1, profil2))
+  var profilesList = List(profil1, profil2)
   val profiles: Map[String, Profile] = Map((profil1.id, profil1), (profil2.id, profil2))
-  val actions: Map[String, Action] = Map((action1.id, action1))
+  //val actions: Map[String, Action] = Map((action1.id, action1))
 
   // we use the enclosing ActorContext's or ActorSystem's dispatcher for our Futures and Scheduler
   implicit def executionContext = actorRefFactory.dispatcher
@@ -77,6 +72,7 @@ trait AmbassyService extends HttpService { //TODO simplify with SimpleRoutingApp
       }
     } ~
       path("ping") {
+      validate(Boot.cache, "Cache service is disabled") 
         complete("PONG!")
       } ~
       path("version") {
@@ -99,23 +95,47 @@ trait AmbassyService extends HttpService { //TODO simplify with SimpleRoutingApp
         } ~
           post(
             entity(as[CommandTransco]) { commandTransco =>
-              complete {
-                //TODO check profile existence
-                val profile = profiles.getOrElse(commandTransco.id, profil1)
-                val fileIn = commandTransco.path
-                val action = actions.getOrElse(profile.actions.head, action1)
-                run(action.id + " " + fileIn + " " + action.inOpt)
+              validate(Boot.cache, "no transco") {
+                complete {
+                  //TODO check profile existence
+                  val profile = profiles.getOrElse(commandTransco.id, profil1)
+                  val fileIn = commandTransco.path
+                  //TODO implement multiple actions profile
+                  val action = profile.actions.head
+                  run(action.id + " " + fileIn + " " + action.inOpt)
+                }
               }
             })
       } ~
-      path("profils.json") {
+      path("profile" / Segment) { id =>
         get {
-          complete(profiles)
+          // None is marshalled to an EmptyEntity by default
+          // http://stackoverflow.com/a/15357394
+          rejectEmptyResponse {
+            complete {
+              profilesList.find(profile => profile.id == id)
+            }
+          }
+        }
+      } ~
+      path("profile.json") {
+          post(
+            entity(as[Profile]) { profile =>
+              complete {
+                profilesList = profile :: profilesList
+                profilesList
+              }
+            })
+      } ~
+      path("profiles.json") {
+        get {
+          complete(profilesList)
         } ~
           post(
-            entity(as[Profiles]) { profiles =>
+            entity(as[List[Profile]]) { profile =>
               complete {
-                profiles
+                profilesList = profile ::: profilesList
+                profilesList
               }
             })
       } ~
@@ -145,13 +165,17 @@ trait AmbassyService extends HttpService { //TODO simplify with SimpleRoutingApp
       }
     } ~
     //http://localhost:8080/addtocache/x:file
-    path("addtocache" / Segment) { elem =>
-      get {
-        Boot.cacheService ! CacheService.Push(elem)
-        complete {
-          "Received GET request for addtocache " + elem
+    path("addtocache" / Segment) {
+      elem =>
+        //TODO not expected behaviour
+        validate(Boot.cache, "Cache service is disabled") {
+          get {
+            Boot.cacheService ! CacheService.Push(elem)
+            complete {
+              "Received GET request for addtocache " + elem
+            }
+          }
         }
-      }
     }
 
   lazy val simpleRouteCache = routeCache()
