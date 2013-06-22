@@ -1,5 +1,9 @@
 package org.edla.ambassy
 
+import java.io.File
+import java.net.URI
+import java.util.UUID
+
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.SynchronizedMap
 import scala.concurrent.duration.DurationInt
@@ -31,13 +35,16 @@ import spray.routing.HttpService
 import spray.routing.ValidationRejection
 import spray.routing.directives.CachingDirectives.routeCache
 import spray.routing.directives.CompletionMagnet.fromObject
-import spray.routing.directives.ParamDefMagnet.apply
 import spray.util.actorSystem
 import spray.util.pimpDuration
 
 import org.edla.ambassy.protocol.CommandProtocol._
 //org.edla.ambassy.protocol.CommandProtocol._ needed for implicits but not bring by Organize imports
 
+
+object InMeMoryProfile {
+  var profiles = new HashMap[String, Profile] with SynchronizedMap[String, Profile]
+}
 
 // we don't implement our route structure directly in the service actor because
 // we want to be able to test it independently, without having to spin up an actor
@@ -57,22 +64,23 @@ class AmbassyServiceActor extends Actor with AmbassyService {
 trait AmbassyService extends HttpService { //TODO simplify with SimpleRoutingApp
 
   //sample
-  val action1 = Action("convert", "-resize 72x72^^  -gravity center -extent 72x72 /tmp/out2.png", "", None, None, None)
-  val action2 = Action("convert", "-resize 72x72^^  -gravity center -extent 72x72 /tmp/out2.png", "", None, None, None)
+  val action1 = Action("convert", "-resize 72x72^^  -gravity center -extent 72x72", "", None, None, None)
+  val action2 = Action("convert", "-resize 72x72^^  -gravity center -extent 72x72", "", None, None, None)
   val profil1: Profile = Profile("id1", "", "", "", List(action1))
   val profil2: Profile = Profile("id2", "", "", "", List(action2))
   var profilesList = List(profil1, profil2)
 
   //TODO SynchronizedMap or actor ?
   //TODO Use JSON Map to avoid map => list conversion
-  var profiles = new HashMap[String, Profile] with SynchronizedMap[String, Profile]
+  //TODO not resilient to actor crash, this must leave in an outside object
+  //var profiles = new HashMap[String, Profile] with SynchronizedMap[String, Profile]
   //val profiles: Map[String, Profile] = Map((profil1.id, profil1), (profil2.id, profil2))
   //val actions: Map[String, Action] = Map((action1.id, action1))
 
   // we use the enclosing ActorContext's or ActorSystem's dispatcher for our Futures and Scheduler
   implicit def executionContext = actorRefFactory.dispatcher
 
-  val route = {
+  val route =
     path("") {
       respondWithMediaType(`text/html`) { // XML is marshalled to `text/xml` by default, so we simply override here
         complete(index)
@@ -96,23 +104,18 @@ trait AmbassyService extends HttpService { //TODO simplify with SimpleRoutingApp
           }
         }
       } ~
-      path("command.json") {
-        get {
-          complete("test")
-        } ~
-          post(
-            entity(as[CommandTransco]) { commandTransco =>
-              validate(Boot.cache, "no transco") {
-                complete {
-                  //TODO check profile existence
-                  val profile = profiles.getOrElse(commandTransco.id, profil1)
-                  val fileIn = commandTransco.path
-                  //TODO implement multiple actions profile
-                  val action = profile.actions.head
-                  run(action.id + " " + fileIn + " " + action.inOpt)
-                }
+      path("transco.json") {
+        post(
+          entity(as[CommandTransco]) { commandTransco =>
+            InMeMoryProfile.profiles.get(commandTransco.id) match {
+              case None => reject(ValidationRejection("Id: " + commandTransco.id + " is not known by the service"))
+              case Some(x) => complete {
+                val file: File = new File(new URI(commandTransco.path))
+                val action = x.actions.head
+                run(action.id + " " + action.inOpt + " " + file.getAbsolutePath() + " " + action.outOpt, "/tmp/" + file.getName() + "-" + UUID.randomUUID())
               }
-            })
+            }
+          })
       } ~
       path("profile" / Segment) { id =>
         get {
@@ -121,7 +124,7 @@ trait AmbassyService extends HttpService { //TODO simplify with SimpleRoutingApp
           rejectEmptyResponse {
             complete {
               //get is needed to avoid key not found exception and get EmptyEntity
-              profiles.get(id)
+              InMeMoryProfile.profiles.get(id)
               //profilesList.find(profile => profile.id == id)
             }
           }
@@ -131,11 +134,11 @@ trait AmbassyService extends HttpService { //TODO simplify with SimpleRoutingApp
         post(
           entity(as[Profile]) { profile =>
             //complete {  
-            profiles.get(profile.id) match {
+            InMeMoryProfile.profiles.get(profile.id) match {
               case None =>
-                profiles += (profile.id -> profile)
+                InMeMoryProfile.profiles += (profile.id -> profile)
                 complete {
-                  profiles.values.toList
+                  InMeMoryProfile.profiles.values.toList
                 }
               //https://groups.google.com/forum/#!topic/spray-user/b0-QxKMZAZ0
               //Option 1 will be easier but not allow you to supply a custom error message
@@ -150,14 +153,14 @@ trait AmbassyService extends HttpService { //TODO simplify with SimpleRoutingApp
       } ~
       path("profiles.json") {
         get {
-          complete(profiles.values.toList)
+          complete(InMeMoryProfile.profiles.values.toList)
         } ~
           post(
             entity(as[List[Profile]]) { profile =>
               complete {
                 //TODO check for duplication
-                profile.foreach { p => profiles = profiles += (p.id -> p) }
-                profiles.values.toList
+                profile.foreach { p => InMeMoryProfile.profiles = InMeMoryProfile.profiles += (p.id -> p) }
+                InMeMoryProfile.profiles.values.toList
                 //profilesList = profile ::: profilesList
                 //profilesList
               }
@@ -168,44 +171,26 @@ trait AmbassyService extends HttpService { //TODO simplify with SimpleRoutingApp
           complete(profilesList)
         }
       } ~
-      path("stats") {
-        complete {
-          actorRefFactory.actorFor("/user/IO-HTTP/listener-0")
-            .ask(Http.GetStats)(1.second)
-            .mapTo[Stats]
-        }
-      } ~
-      path("timeout") { ctx =>
-        // we simply let the request drop to provoke a timeout
-      } ~
-      path("crash") { ctx =>
-        sys.error("crash boom bang")
-      } ~
-      path("fail") {
-        failWith(new RuntimeException("aaaahhh"))
-      }
-  } ~
-    (post | parameter('method ! "post")) {
-      path("stop") {
-        complete {
-          in(1.second) { actorSystem.shutdown() }
-          "Shutting down in 1 second..."
-        }
-      }
-    } ~
-    //http://localhost:8080/addtocache/x:file
-    path("addtocache" / Segment) {
-      elem =>
-        //TODO not expected behaviour
-        validate(Boot.cache, "Cache service is disabled") {
-          get {
-            Boot.cacheService ! CacheService.Push(elem)
-            complete {
-              "Received GET request for addtocache " + elem
+      //http://localhost:8080/addtocache/x:file
+      path("addtocache" / Segment) {
+        elem =>
+          //TODO not expected behaviour
+          validate(Boot.cache, "Cache service is disabled") {
+            get {
+              Boot.cacheService ! CacheService.Push(elem)
+              complete {
+                "Received GET request for addtocache " + elem
+              }
             }
           }
-        }
+      }
+  path("stats") {
+    complete {
+      actorRefFactory.actorFor("/user/IO-HTTP/listener-0")
+        .ask(Http.GetStats)(1.second)
+        .mapTo[Stats]
     }
+  }
 
   lazy val simpleRouteCache = routeCache()
 
@@ -245,14 +230,14 @@ trait AmbassyService extends HttpService { //TODO simplify with SimpleRoutingApp
     actorSystem.scheduler.scheduleOnce(duration)(body)
 
   //http://stackoverflow.com/a/6013932
-  def run(in: String): CommandResult = {
-    println(in)
-    val qb = Process(in)
+  def run(in: String, path: String): CommandResult = {
+    println(in + " " + path)
+    val qb = Process(in + " " + path)
     var out = List[String]()
     var err = List[String]()
 
     val exit = qb ! ProcessLogger((s) => out ::= s, (s) => err ::= s)
 
-    CommandResult(out.reverse, err.reverse, exit)
+    CommandResult(out.reverse, err.reverse, exit, path)
   }
 }
