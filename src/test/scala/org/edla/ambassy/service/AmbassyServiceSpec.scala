@@ -1,4 +1,4 @@
-package org.edla.ambassy.service.cache
+package org.edla.ambassy.service
 
 //import org.specs2.mutable.Specification
 //import spray.testkit.Specs2RouteTest
@@ -9,13 +9,13 @@ import spray.http._
 import StatusCodes._
 import org.edla.ambassy._
 
-class ScalatestRouteTestSpec extends FreeSpec with MustMatchers with ScalatestRouteTest with AmbassyService {
+class AmbassyServiceSpec extends FreeSpec with MustMatchers with ScalatestRouteTest with AmbassyService {
   def actorRefFactory = system
 
   "The CacheService should" - {
 
     "return a 'PONG!' response for GET requests to /ping" in {
-      Get("/ping") ~> cacheRoute ~> check { entityAs[String] === "PONG!" }
+      Get("/ping") ~> route ~> check { entityAs[String] === "PONG!" }
     }
   }
 
