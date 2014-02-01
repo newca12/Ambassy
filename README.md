@@ -1,4 +1,4 @@
-# Ambassy [![Build Status](https://buildhive.cloudbees.com/job/newca12/job/Ambassy/badge/icon)](https://buildhive.cloudbees.com/job/newca12/job/Ambassy/) [![Ohloh](https://www.ohloh.net/p/Ambassy/widgets/project_thin_badge.gif)](https://www.ohloh.net/p/Ambassy)
+# Ambassy [![Build Status](https://buildhive.cloudbees.com/job/newca12/job/Ambassy/badge/icon)](https://buildhive.cloudbees.com/job/newca12/job/Ambassy/) [![Ohloh](http://www.ohloh.net/p/Ambassy/widgets/project_thin_badge.gif)](https://www.ohloh.net/p/Ambassy)
 
 ## About
 Embrace the Unix philosophy, write program that do one thing and do it well.  
